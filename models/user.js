@@ -24,6 +24,13 @@ const userSchema= new mongoose.Schema({
     about:{
         type:String
     },
+    img:{
+        type:String,
+        default:''
+    },
+    location:{
+        type:String
+    },
     posts:[
         {
             type:mongoose.Schema.Types.ObjectId,

@@ -71,7 +71,7 @@ exports.login=async(req,res)=>{
 //profile
 exports.getProfile=async(req,res)=>{
     try {
-        const user=await User.findById(req.user.id).select('-password').populate('followers following', 'username name about ')
+        const user=await User.findById(req.user.id).select('-password').populate('followers following', 'username name about img')
         if(!user){
             return res.status(400).json({
                 message:"user not found"
@@ -87,13 +87,15 @@ exports.getProfile=async(req,res)=>{
 //update profile
 exports.updateprofile=async(req,res)=>{
     try {
-        const{name,username,email, about}=req.body;
+        const{name,username,email, about, location, img}=req.body;
         const userId = req.user._id;
         const user= await User.findById(userId)
         user.username = username || user.username;
         user.email = email || user.email;
         user.name = name || user.name;
         user.about=about || user.about;
+        user.location=location || user.location;
+        user.img=img || user.img;
 
         await user.save();
         // Update posts with new username
