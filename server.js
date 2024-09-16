@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 const cors = require('cors')
 const databaseconnection= require('./config/db.js')
 const cookieParser = require('cookie-parser');
-const router = require('./routes/userroutes.js');
+const router = require('./routes/userRoutes.js');
 const path = require('path');
 const fs = require('fs');
 
