@@ -30,28 +30,45 @@ exports.CreatePost=async(req,res)=>{
 
 
 //get post
-exports.getPost=async(req,res)=>{
+exports.getPost = async (req, res) => {
   try {
-    const posts = await Post.find()
-      .populate('user', 'name email username img') // Populate the user field with name and email
+    // Get the current user's ID and the list of users they are following
+    const currentUserId = req.user.id;
+    
+    // Assuming you have a 'following' field in your user schema which is an array of user IDs
+    const currentUser = await User.findById(currentUserId).select('following');
+    
+    // Add the current user's ID to the list of followed users
+    const followingUsers = [...currentUser.following, currentUserId];
+
+    // Fetch posts that are created by the current user or by users they follow
+    const posts = await Post.find({ user: { $in: followingUsers } })
+      .populate('user', 'name email username img') // Populate user field with specific fields
       .exec();
+
+    if (!posts || posts.length === 0) {
+      return res.status(404).json({ msg: 'No posts found' });
+    }
+
     // Extract the filename from the path for each post
     const postsWithFilenames = posts.map(post => {
-      const pdfFilename = post.pdf ? post.pdf.split('/').pop() : null;
+      const pdfFilename = post.pdf?.split('/').pop() || null; // Optional chaining to avoid errors
       return { ...post._doc, pdfFilename };
     });
+
     res.json(postsWithFilenames);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
   }
-}
+};
+
 
 // Get single post by ID
 exports.getfile = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
-      .populate('user', 'name username') // Populate only the name and username of the user
+      .populate('user', 'name username img') // Populate only the name and username of the user
       .exec();
 
     if (!post) {
@@ -80,3 +97,18 @@ exports.getOwnPost=async(req,res)=>{
     
   }
 }
+
+// Get posts by user ID
+exports.getUserPosts = async (req, res) => {
+  try {
+      const { userId } = req.params;
+      const posts = await Post.find({ user: userId })
+          .populate('user', 'username name img') // Adjust fields as necessary
+          .exec();
+
+      res.json(posts);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+  }
+};
