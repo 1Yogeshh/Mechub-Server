@@ -4,7 +4,7 @@ const User= require('../models/user.js')
 //create post
 exports.CreatePost = async (req, res) => {
   try {
-    const { title, description, image } = req.body;
+    const { title, description } = req.body;
 
     // Validate required fields
     if (!title || !description) {
