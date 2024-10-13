@@ -2,31 +2,38 @@ const Post= require('../models/post.js')
 const User= require('../models/user.js')
 
 //create post
-exports.CreatePost=async(req,res)=>{
+exports.CreatePost = async (req, res) => {
   try {
     const { title, description, image } = req.body;
-    if(!title || !description){
-      return res.status(404).json({
-        message:"all field are required"
-      })
-    }
-    const file = req.files ? req.files['file'][0].path : null;
 
+    // Validate required fields
+    if (!title || !description) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Handle file upload if present
+    const file = req.files && req.files['file'] ? req.files['file'][0].path : null;
+
+    // Create new post
     const newPost = new Post({
       title,
       description,
-      file,
-      image,
-      user: req.user.id,
+      file, // Null if no file uploaded
+      image, // Could be Cloudinary image URL
+      user: req.user.id, // Assuming user ID is available via auth middleware
     });
 
+    // Save post to the database
     await newPost.save();
-    res.status(201).json(newPost);
+
+    // Respond with the created post
+    return res.status(201).json(newPost);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+    console.error("CreatePost Error:", error.message);
+    return res.status(500).json({ message: "Server Error" });
   }
-}
+};
+
 
 
 //get post
