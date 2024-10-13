@@ -18,8 +18,8 @@ exports.CreatePost = async (req, res) => {
     const newPost = new Post({
       title,
       description,
-      file, // Null if no file uploaded
-      image, // Could be Cloudinary image URL
+      file:file || nul, // Null if no file uploaded
+      image:image || null, // Could be Cloudinary image URL
       user: req.user.id, // Assuming user ID is available via auth middleware
     });
 
@@ -27,7 +27,7 @@ exports.CreatePost = async (req, res) => {
     await newPost.save();
 
     // Respond with the created post
-    return res.status(201).json(newPost, {message:"Post create Succesfully"});
+    return res.status(201).json( {message:"Post create Succesfully",post:newPost});
   } catch (error) {
     console.error("CreatePost Error:", error.message);
     return res.status(500).json({ message: "Server Error" });
