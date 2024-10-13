@@ -1,25 +1,43 @@
 const Post = require('../models/post.js');
-const User = require('../models/user.js');
+const User = require('../models/user.js'); // Make sure to import User if needed
 
 // Create post
 exports.CreatePost = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, image, file } = req.body;
 
     // Validate required fields
-    if (!title || !description) {
+    if (!title || !description ) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Handle file upload if present
-    const file = req.files && req.files['file'] ? req.files['file'][0].path : null;
-    const image = req.files && req.files['image'] ? req.files['image'][0].path : req.body.image || null;
+    // Validate the format of image and file URLs (basic validation)
+    const isValidUrl = (url) => {
+      const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])?)\\.)+[a-z]{2,}|'+ // domain name
+        'localhost|'+ // localhost
+        '\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|'+ // ipv4
+        '\\[([a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}\\])'+ // ipv6
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // path
+        '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+        '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+      return !!pattern.test(url);
+    };
+
+    if (!isValidUrl(image) || !isValidUrl(file)) {
+      return res.status(400).json({ message: "Invalid image or file URL" });
+    }
+
+    // Check if the user is authenticated
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
 
     // Create new post
     const newPost = new Post({
       title,
       description,
-      file, // Null if no file uploaded
+      file, // Could be Cloudinary file URL or file path
       image, // Could be Cloudinary image URL or file path
       user: req.user.id,
     });
@@ -30,7 +48,7 @@ exports.CreatePost = async (req, res) => {
     // Respond with the created post
     return res.status(201).json({ message: "Post created successfully", post: newPost });
   } catch (error) {
-    console.error("CreatePost Error:", error.message);
+    console.error("CreatePost Error:", error); // Log the entire error object
     return res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
@@ -81,8 +99,13 @@ exports.getfile = async (req, res) => {
     if (!post) {
       return res.status(404).json({ msg: 'Post not found' });
     }
+    // Check if the file URL is relative and needs a prefix
+    if (post.file && !post.file.startsWith('http')) {
+      post.file = `${req.protocol}://${req.get('host')}/${post.file}`; // Prefix with server URL if it's a local file
+    }
 
-    res.json(post);
+    // Send the post with the populated user
+    res.status(200).json(post);
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ msg: 'Server Error' }); // Return JSON response for consistency
