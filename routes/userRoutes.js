@@ -17,7 +17,7 @@ router.route("/signup").post(register)
 router.route("/login").post(login)
  
 //create pots
-router.route("/create").post( upload.fields([{name:'file',maxCount:1},{name:"image",maxCount:1}]), CreatePost)
+router.route("/create").post(auth, upload.fields([{name:'file',maxCount:1},{name:"image",maxCount:1}]), CreatePost)
 
 //getpost
 router.route("/files").get(auth, getPost)

@@ -22,6 +22,7 @@ exports.CreatePost = async (req, res) => {
       description,
       file, // Null if no file uploaded
       image, // Could be Cloudinary image URL
+      user: req.user.id,
     });
 
     // Save post to the database
