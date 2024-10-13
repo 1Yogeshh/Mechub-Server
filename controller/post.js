@@ -18,8 +18,8 @@ exports.CreatePost = async (req, res) => {
     const newPost = new Post({
       title,
       description,
-      file:file || nul, // Null if no file uploaded
-      image:image || null, // Could be Cloudinary image URL
+      file, // Null if no file uploaded
+      image, // Could be Cloudinary image URL
       user: req.user.id, // Assuming user ID is available via auth middleware
     });
 
