@@ -7,7 +7,6 @@ const databaseconnection= require('./config/db.js')
 const cookieParser = require('cookie-parser');
 const router = require('./routes/userRoutes.js');
 const path = require('path');
-const fs = require('fs');
 
 dotenv.config();
 
