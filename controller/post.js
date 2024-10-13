@@ -27,7 +27,7 @@ exports.CreatePost = async (req, res) => {
     await newPost.save();
 
     // Respond with the created post
-    return res.status(201).json(newPost);
+    return res.status(201).json(newPost, {message:"Post create Succesfully"});
   } catch (error) {
     console.error("CreatePost Error:", error.message);
     return res.status(500).json({ message: "Server Error" });
