@@ -14,6 +14,8 @@ exports.CreatePost = async (req, res) => {
     // Handle file upload if present
     const file = req.files && req.files['file'] ? req.files['file'][0].path : null;
 
+    const image = req.body.image || null;
+
     // Create new post
     const newPost = new Post({
       title,
