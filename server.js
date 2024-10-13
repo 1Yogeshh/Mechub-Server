@@ -20,7 +20,7 @@ app.use(express.urlencoded({
   extended:true
 }))
 databaseconnection();
-app.use(cors({ origin: 'https://mechub.vercel.app', credentials: true }));
+app.use(cors({ origin: ['http://localhost:3000', 'https://mechub.vercel.app'], credentials: true }));
 app.use(express.json());
 app.use(cookieParser()); 
 
