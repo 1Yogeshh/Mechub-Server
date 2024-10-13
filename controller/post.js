@@ -1,7 +1,7 @@
-const Post= require('../models/post.js')
-const User= require('../models/user.js')
+const Post = require('../models/post.js');
+const User = require('../models/user.js');
 
-//create post
+// Create post
 exports.CreatePost = async (req, res) => {
   try {
     const { title, description } = req.body;
@@ -13,15 +13,14 @@ exports.CreatePost = async (req, res) => {
 
     // Handle file upload if present
     const file = req.files && req.files['file'] ? req.files['file'][0].path : null;
-
-    const image = req.body.image || null;
+    const image = req.files && req.files['image'] ? req.files['image'][0].path : req.body.image || null;
 
     // Create new post
     const newPost = new Post({
       title,
       description,
       file, // Null if no file uploaded
-      image, // Could be Cloudinary image URL
+      image, // Could be Cloudinary image URL or file path
       user: req.user.id,
     });
 
@@ -29,13 +28,12 @@ exports.CreatePost = async (req, res) => {
     await newPost.save();
 
     // Respond with the created post
-    return res.status(201).json( {message:"Post create Succesfully",post:newPost});
+    return res.status(201).json({ message: "Post created successfully", post: newPost });
   } catch (error) {
     console.error("CreatePost Error:", error.message);
-    return res.status(500).json({ message: "Server Error" });
+    return res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
-
 
 
 //get post
